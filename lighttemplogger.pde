@@ -26,7 +26,7 @@ uint32_t syncTime = 0; // time of last sync()
 #define tempPin 1                // analog 1
 #define BANDGAPREF 14            // special indicator that we want to measure the bandgap
 
-#define aref_voltage 3.3         // we tie 3.3V to ARef and measure it with a multimeter!
+#define aref_voltage 5         // we tie 3.3V to ARef and measure it with a multimeter!
 #define bandgap_voltage 1.1      // this is not super guaranteed but its not -too- off
 
 RTC_DS1307 RTC; // define the Real Time Clock object
@@ -110,6 +110,7 @@ void setup(void)
  
   // If you want to set the aref to something other than 5v
   analogReference(EXTERNAL);
+  //analogReference(DEFAULT);
 }
 
 void loop(void)
@@ -175,9 +176,9 @@ void loop(void)
   int tempReading = analogRead(tempPin);    
   
   // converting that reading to voltage, for 3.3v arduino use 3.3, for 5.0, use 5.0
-  float voltage = tempReading * aref_voltage / 1024;  
-  float temperatureC = (voltage - 0.5) * 100 ;
-  float temperatureF = (temperatureC * 9 / 5) + 32;
+  float voltage = tempReading * aref_voltage / 1024.0;  
+  float temperatureF = voltage/0.01;//10mV per degree
+  //float temperatureF = (temperatureC * 9 / 5) + 32;
   
   logfile.print(", ");    
   logfile.print(photocellReading);
@@ -221,5 +222,4 @@ void loop(void)
   digitalWrite(redLEDpin, LOW);
   
 }
-
 
