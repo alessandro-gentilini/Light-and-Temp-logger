@@ -5,16 +5,16 @@
 // A simple data logger for the Arduino analog pins
 
 // how many milliseconds between grabbing data and logging it. 1000 ms is once a second
-#define LOG_INTERVAL  1000 // mills between entries (reduce to take more/faster data)
+#define LOG_INTERVAL  60000 // mills between entries (reduce to take more/faster data)
 
 // how many milliseconds before writing the logged data permanently to disk
 // set it to the LOG_INTERVAL to write each time (safest)
 // set it to 10*LOG_INTERVAL to write all data every 10 datareads, you could lose up to 
 // the last 10 reads if power is lost but it uses less power and is much faster!
-#define SYNC_INTERVAL 1000 // mills between calls to flush() - to write data to the card
+#define SYNC_INTERVAL 600000 // mills between calls to flush() - to write data to the card
 uint32_t syncTime = 0; // time of last sync()
 
-#define ECHO_TO_SERIAL   1 // echo data to serial port
+#define ECHO_TO_SERIAL   0 // echo data to serial port
 #define WAIT_TO_START    0 // Wait for serial input in setup()
 
 // the digital pins that connect to the LEDs
@@ -48,6 +48,13 @@ void error(char *str)
   while(1);
 }
 
+char timestamp[20];
+
+void ISO8601(const DateTime& dt, char* buffer, int size) {
+  //2016-07-01T13:48:24
+  snprintf(buffer,size,"%04d-%02d-%02dT%02d:%02d:%02d",dt.year(),dt.month(),dt.day(),dt.hour(),dt.minute(),dt.second());
+}
+
 void setup(void)
 {
   Serial.begin(9600);
@@ -75,7 +82,7 @@ void setup(void)
   Serial.println("card initialized.");
   
   // create a new file
-  char filename[] = "LOGGER00.CSV";
+  char filename[] = "LOGGER00.TXT";
   for (uint8_t i = 0; i < 100; i++) {
     filename[6] = i/10 + '0';
     filename[7] = i%10 + '0';
@@ -133,37 +140,20 @@ void loop(void)
 
   // fetch the time
   now = RTC.now();
+  
+  ISO8601(now,timestamp,20);
+  
   // log time
   logfile.print(now.unixtime()); // seconds since 1/1/1970
   logfile.print(", ");
   logfile.print('"');
-  logfile.print(now.year(), DEC);
-  logfile.print("/");
-  logfile.print(now.month(), DEC);
-  logfile.print("/");
-  logfile.print(now.day(), DEC);
-  logfile.print(" ");
-  logfile.print(now.hour(), DEC);
-  logfile.print(":");
-  logfile.print(now.minute(), DEC);
-  logfile.print(":");
-  logfile.print(now.second(), DEC);
+  logfile.print(timestamp);
   logfile.print('"');
 #if ECHO_TO_SERIAL
   Serial.print(now.unixtime()); // seconds since 1/1/1970
   Serial.print(", ");
   Serial.print('"');
-  Serial.print(now.year(), DEC);
-  Serial.print("/");
-  Serial.print(now.month(), DEC);
-  Serial.print("/");
-  Serial.print(now.day(), DEC);
-  Serial.print(" ");
-  Serial.print(now.hour(), DEC);
-  Serial.print(":");
-  Serial.print(now.minute(), DEC);
-  Serial.print(":");
-  Serial.print(now.second(), DEC);
+  Serial.print(timestamp);
   Serial.print('"');
 #endif //ECHO_TO_SERIAL
 
