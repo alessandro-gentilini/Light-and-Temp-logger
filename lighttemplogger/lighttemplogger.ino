@@ -5,8 +5,7 @@
 // A simple data logger for the Arduino analog pins
 
 // how many milliseconds between grabbing data and logging it. 1000 ms is once a second
-//#define LOG_INTERVAL  60000 // mills between entries (reduce to take more/faster data)
-#define LOG_INTERVAL  1000 // mills between entries (reduce to take more/faster data)
+#define LOG_INTERVAL  60000 // mills between entries (reduce to take more/faster data)
 
 // how many milliseconds before writing the logged data permanently to disk
 // set it to the LOG_INTERVAL to write each time (safest)
