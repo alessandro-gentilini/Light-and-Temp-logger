@@ -5,7 +5,8 @@
 // A simple data logger for the Arduino analog pins
 
 // how many milliseconds between grabbing data and logging it. 1000 ms is once a second
-#define LOG_INTERVAL  60000 // mills between entries (reduce to take more/faster data)
+//#define LOG_INTERVAL  60000 // mills between entries (reduce to take more/faster data)
+#define LOG_INTERVAL  1000 // mills between entries (reduce to take more/faster data)
 
 // how many milliseconds before writing the logged data permanently to disk
 // set it to the LOG_INTERVAL to write each time (safest)
@@ -14,7 +15,7 @@
 #define SYNC_INTERVAL 600000 // mills between calls to flush() - to write data to the card
 uint32_t syncTime = 0; // time of last sync()
 
-#define ECHO_TO_SERIAL   0 // echo data to serial port
+#define ECHO_TO_SERIAL   1 // echo data to serial port
 #define WAIT_TO_START    0 // Wait for serial input in setup()
 
 // the digital pins that connect to the LEDs
@@ -118,6 +119,10 @@ void setup(void)
   // If you want to set the aref to something other than 5v
   analogReference(EXTERNAL);
   //analogReference(DEFAULT);
+  
+  if (! RTC.isrunning()) {
+    RTC.adjust(DateTime(__DATE__, __TIME__));
+  }
 }
 
 void loop(void)
